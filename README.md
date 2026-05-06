@@ -1,68 +1,40 @@
 # fathom-sim-queue-flow
 
-`fathom-sim-queue-flow` is a C# project for Simulations. It turns create a C# reference implementation for queue workflows, centered on graph analysis, node-edge fixtures, and cycle and reachability reports into a small local model with readable fixtures and a direct verification command.
+`fathom-sim-queue-flow` is a C# project in simulations. Its focus is to create a C# reference implementation for queue workflows, centered on graph analysis, node-edge fixtures, and cycle and reachability reports.
 
-## Reading Fathom Sim Queue Flow
+## Problem It Tries To Make Smaller
 
-Start with the README, then open `metadata/project.json` to check the constants behind the examples. After that, `fixtures/cases.csv` shows the compact path and `examples/extended_cases.csv` gives a wider look at the same rule.
+The point is to make a small domain rule concrete enough that a reader can change it and immediately see what broke.
 
-## Purpose
+## Fathom Sim Queue Flow Review Notes
 
-I use this kind of project to make a rule visible before adding more machinery around it. The important part here is not the size of the codebase. It is that the input signals, scoring rule, fixture data, and expected output can all be checked in one sitting.
+Start with `input pressure` and `review cost`. Those cases create the widest score spread in this repo, so they are the best quick check when the model changes.
 
-## What It Does
+## Working Pieces
 
-- Models input state with deterministic scoring and explicit review decisions.
-- Uses fixture data to keep policy checks changes visible in code review.
-- Includes extended examples for fixture data, including `surge` and `degraded`.
-- Documents local reports tradeoffs in `docs/operations.md`.
-- Runs locally with a single verification command and no external credentials.
+- `fixtures/domain_review.csv` adds cases for input pressure and state drift.
+- `metadata/domain-review.json` records the same cases in structured form.
+- `config/review-profile.json` captures the read order and the two review questions.
+- `examples/fathom-sim-queue-walkthrough.md` walks through the case spread.
+- The C# code includes a review path for `input pressure` and `review cost`.
+- `docs/field-notes.md` explains the strongest and weakest cases.
 
-## Design Sketch
+## Design Notes
 
-The interesting part is the boundary between accepted and reviewed scenarios. Extended examples sit near that boundary so future edits can show whether the model became more permissive or more cautious. The C# code keeps the core model in a small static API and runs checks through the executable path.
+The core code exposes a scoring path and the added review layer uses `signal`, `slack`, `drag`, and `confidence`. The domain terms are `input pressure`, `state drift`, `review cost`, and `decision risk`.
 
-## Files Worth Reading
+The C# code keeps the review rule close to the tests.
 
-- `src`: primary implementation
-- `tests`: verification harness
-- `fixtures`: compact golden scenarios
-- `examples`: expanded scenario set
-- `metadata`: project constants and verification metadata
-- `docs`: operations and extension notes
-- `scripts`: local verification and audit commands
-
-## Setup
-
-The only required setup is the local C# toolchain. After cloning, stay in the repo root so fixture paths resolve correctly.
-
-## Usage
+## Example Run
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify.ps1
 ```
 
-This runs the language-level build or test path against the compact fixture set.
+## Tests
 
-## Verification
+The same command runs the local verification path. The highest-scoring domain case is `stale` at 214, which lands in `ship`. The most cautious case is `edge` at 137, which lands in `watch`.
 
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/audit.ps1
-```
+## Known Limits
 
-The audit command checks repository structure and README constraints before it delegates to the verifier.
-
-## Fixture Notes
-
-The extended cases are not random smoke tests. `degraded` keeps pressure on the review path, while `surge` shows the model when capacity and weight are strong enough to clear the threshold.
-
-## Limits
-
-The repository favors determinism over breadth. It does not pull live data, keep secrets, or depend on network access for verification.
-
-## Next Directions
-
-- Add a loader for `examples/extended_cases.csv` and promote selected cases into the language test suite.
-- Add a short report command that prints the score breakdown for a single scenario.
-- Add malformed input fixtures so the failure path is as visible as the happy path.
-- Add one more simulations fixture that focuses on a malformed or borderline input.
+This remains a local project with deterministic fixtures. It does not depend on credentials, hosted services, or live data. Future work should add richer malformed inputs before widening the public API.
