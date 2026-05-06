@@ -1,0 +1,17 @@
+{
+  "repo": "fathom-sim-queue-flow",
+  "thresholds": {
+    "signal": 2,
+    "slack": 2,
+    "confidence": 2,
+    "drag": 3,
+    "ship": 171,
+    "watch": 112
+  },
+  "terms": [
+    "input pressure",
+    "state drift",
+    "review cost",
+    "decision risk"
+  ]
+}
